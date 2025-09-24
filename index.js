@@ -56,9 +56,21 @@ const setupCommand = new SlashCommandBuilder()
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
 
-client.once('ready', () => {
+client.once('ready', async () => {
     console.log(`Bot is online! Logged in as ${client.user.tag}`);
     console.log(`Bot ID: ${client.user.id}`);
+    
+    // Register slash commands
+    try {
+        const commands = [setupCommand];
+        console.log('Registering slash commands...');
+        
+        // Register commands globally
+        await client.application.commands.set(commands);
+        console.log('Slash commands registered successfully!');
+    } catch (error) {
+        console.error('Error registering slash commands:', error);
+    }
 });
 
 client.on('interactionCreate', async (interaction) => {
@@ -97,24 +109,41 @@ client.on('messageCreate', async (message) => {
     // Ignore bot messages
     if (message.author.bot) return;
 
+    console.log(`Message received: "${message.content}" from ${message.author.tag} in channel ${message.channel.name}`);
+
     // Get guild configuration
     const config = guildConfigs.get(message.guildId);
-    if (!config) return;
+    if (!config) {
+        console.log('No configuration found for this guild');
+        return;
+    }
+
+    console.log(`Config found - monitoring channel: ${config.channelId}, bypass role: ${config.bypassRoleId}`);
 
     // Check if message is in the monitored channel
-    if (message.channelId !== config.channelId) return;
+    if (message.channelId !== config.channelId) {
+        console.log(`Message not in monitored channel (${message.channelId} vs ${config.channelId})`);
+        return;
+    }
 
     // Check if user has bypass role
-    if (message.member.roles.cache.has(config.bypassRoleId)) return;
+    if (message.member.roles.cache.has(config.bypassRoleId)) {
+        console.log('User has bypass role, allowing message');
+        return;
+    }
 
     // Check if message is a slash command
     if (isSlashCommand(message.content)) {
+        console.log('Message is a slash command, allowing');
         return; // Allow slash commands
     }
+
+    console.log('Non-command message detected, processing...');
 
     // Delete the non-command message
     try {
         await message.delete();
+        console.log('Message deleted successfully');
     } catch (error) {
         console.error('Error deleting message:', error);
     }
