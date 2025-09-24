@@ -1,0 +1,20 @@
+{
+  "name": "discord-command-monitor-bot",
+  "version": "1.0.0",
+  "description": "Discord bot that monitors a channel for non-command messages and times out users",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "keywords": ["discord", "bot", "moderation", "commands"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.3.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
